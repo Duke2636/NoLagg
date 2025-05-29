@@ -9,7 +9,7 @@ StarterGui:SetCoreGuiEnabled(Enum.CoreGuiType.Backpack, false)
 StarterGui:SetCoreGuiEnabled(Enum.CoreGuiType.PlayerList, false)
 StarterGui:SetCoreGuiEnabled(Enum.CoreGuiType.Chat, false)
 
--- Try to hide new TextChatService chat UI manually
+-- Hide new TextChatService chat UI manually
 task.spawn(function()
     local tries = 0
     while tries < 20 do
@@ -37,34 +37,59 @@ blackFrame.BackgroundColor3 = Color3.new(0, 0, 0)
 blackFrame.BackgroundTransparency = 0
 blackFrame.Parent = screenGui
 
-local textLabel = Instance.new("TextLabel")
-textLabel.Size = UDim2.new(1, 0, 0.2, 0)
-textLabel.Position = UDim2.new(0, 0, 0.4, 0)
-textLabel.BackgroundTransparency = 1
-textLabel.Text = "Please wait..."
-textLabel.TextColor3 = Color3.new(1, 1, 1)
-textLabel.TextScaled = true
-textLabel.Font = Enum.Font.SourceSansBold
-textLabel.Parent = blackFrame
+local mainText = Instance.new("TextLabel")
+mainText.Size = UDim2.new(1, 0, 0.15, 0)
+mainText.Position = UDim2.new(0, 0, 0.3, 0)
+mainText.BackgroundTransparency = 1
+mainText.Text = "Please wait..."
+mainText.TextColor3 = Color3.new(1, 1, 1)
+mainText.TextScaled = true
+mainText.Font = Enum.Font.SourceSansBold
+mainText.Parent = blackFrame
 
--- Close button to remove blackout
-local closeButton = Instance.new("TextButton")
-closeButton.Size = UDim2.new(0, 150, 0, 50)
-closeButton.Position = UDim2.new(0.5, -75, 0.6, 0)
-closeButton.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-closeButton.TextColor3 = Color3.new(1, 1, 1)
-closeButton.Text = "Close"
-closeButton.Font = Enum.Font.SourceSansBold
-closeButton.TextScaled = true
-closeButton.Parent = blackFrame
+local infoText = Instance.new("TextLabel")
+infoText.Size = UDim2.new(1, -40, 0, 100)
+infoText.Position = UDim2.new(0, 20, 0.5, 0)
+infoText.BackgroundTransparency = 1
+infoText.TextColor3 = Color3.new(1, 1, 1)
+infoText.TextWrapped = true
+infoText.TextYAlignment = Enum.TextYAlignment.Top
+infoText.Font = Enum.Font.SourceSans
+infoText.TextSize = 24
+infoText.Text = ""
+infoText.Parent = blackFrame
 
-closeButton.MouseButton1Click:Connect(function()
-    -- Restore UI elements
-    StarterGui:SetCore("TopbarEnabled", true)
-    StarterGui:SetCoreGuiEnabled(Enum.CoreGuiType.Backpack, true)
-    StarterGui:SetCoreGuiEnabled(Enum.CoreGuiType.PlayerList, true)
-    StarterGui:SetCoreGuiEnabled(Enum.CoreGuiType.Chat, true)
+-- Check backpack for specified items and count them
+local backpack = player:WaitForChild("Backpack")
 
-    -- Remove blackout GUI
-    screenGui:Destroy()
-end)
+local function countItems()
+    local counts = {
+        Dragonfly = 0,
+        Raccoon = 0,
+        ["Red Fox"] = 0
+    }
+
+    for _, item in ipairs(backpack:GetChildren()) do
+        if item:IsA("Tool") and item.Name then
+            local name = item.Name
+            if string.find(name, "Dragonfly") then
+                counts.Dragonfly = counts.Dragonfly + 1
+            elseif string.find(name, "Raccoon") then
+                counts.Raccoon = counts.Raccoon + 1
+            elseif string.find(name, "Red Fox") then
+                counts["Red Fox"] = counts["Red Fox"] + 1
+            end
+        end
+    end
+
+    return counts
+end
+
+local counts = countItems()
+
+local displayText = string.format(
+    "Inventory counts:\nDragonfly: %d\nRaccoon: %d\nRed Fox: %d",
+    counts.Dragonfly, counts.Raccoon, counts["Red Fox"]
+)
+
+infoText.Text = displayText
