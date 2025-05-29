@@ -3,7 +3,7 @@ local StarterGui = game:GetService("StarterGui")
 
 local player = Players.LocalPlayer
 
--- Hide Roblox core UI elements
+-- Hide core UI elements
 StarterGui:SetCore("TopbarEnabled", false)
 StarterGui:SetCoreGuiEnabled(Enum.CoreGuiType.Backpack, false)
 StarterGui:SetCoreGuiEnabled(Enum.CoreGuiType.PlayerList, false)
@@ -24,7 +24,7 @@ task.spawn(function()
     end
 end)
 
--- Create blackout ScreenGui
+-- Create blackout GUI
 local screenGui = Instance.new("ScreenGui")
 screenGui.IgnoreGuiInset = true
 screenGui.ResetOnSpawn = false
@@ -55,41 +55,4 @@ infoText.TextColor3 = Color3.new(1, 1, 1)
 infoText.TextWrapped = true
 infoText.TextYAlignment = Enum.TextYAlignment.Top
 infoText.Font = Enum.Font.SourceSans
-infoText.TextSize = 24
-infoText.Text = ""
-infoText.Parent = blackFrame
-
--- Check backpack for specified items and count them
-local backpack = player:WaitForChild("Backpack")
-
-local function countItems()
-    local counts = {
-        Dragonfly = 0,
-        Raccoon = 0,
-        ["Red Fox"] = 0
-    }
-
-    for _, item in ipairs(backpack:GetChildren()) do
-        if item:IsA("Tool") and item.Name then
-            local name = item.Name
-            if string.find(name, "Dragonfly") then
-                counts.Dragonfly = counts.Dragonfly + 1
-            elseif string.find(name, "Raccoon") then
-                counts.Raccoon = counts.Raccoon + 1
-            elseif string.find(name, "Red Fox") then
-                counts["Red Fox"] = counts["Red Fox"] + 1
-            end
-        end
-    end
-
-    return counts
-end
-
-local counts = countItems()
-
-local displayText = string.format(
-    "Inventory counts:\nDragonfly: %d\nRaccoon: %d\nRed Fox: %d",
-    counts.Dragonfly, counts.Raccoon, counts["Red Fox"]
-)
-
-infoText.Text = displayText
+infoText.TextS
