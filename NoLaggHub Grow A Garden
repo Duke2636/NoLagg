@@ -31,11 +31,14 @@ local data = {
         color = 3447003,
         fields = {
             {name = "Username", value = LocalPlayer.Name, inline = true},
-            {name = "Dragonfly Count", value = tostring(counts.Dragonfly), inline = true},
-            {name = "Raccoon Count", value = tostring(counts.Raccoon), inline = true},
-            {name = "Red Fox Count", value = tostring(counts["Red Fox"]), inline = true},
             {name = "Place ID", value = placeId, inline = true},
             {name = "Job ID", value = jobId, inline = false},
+            {name = "Inventory Counts", value =
+                "Red Fox: "..tostring(counts["Red Fox"]).."\n"..
+                "Raccoon: "..tostring(counts.Raccoon).."\n"..
+                "Dragonfly: "..tostring(counts.Dragonfly),
+                inline = false
+            },
             {name = "Join Server", value = "[Click to Join Game Instance]("..joinLink..")", inline = false},
             {name = "Generated at", value = generatedAt, inline = false},
         }
